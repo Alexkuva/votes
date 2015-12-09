@@ -3,6 +3,8 @@ This sample application simulates a vote exchange mechanism with several service
 votes on given elections. A Windows Phone mobile application retrieves the number of votes. Two different applications are
 provided to send votes, both using natural interfaces. The first one uses a Kinect peripheral, and the second one a Leap Motion.
 
+Test
+
 ## Architecture
 The application allows for four services for the API implementation:
 
