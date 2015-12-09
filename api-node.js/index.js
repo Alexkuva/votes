@@ -14,6 +14,8 @@ app.use(methodOverride('X-HTTP-Method-Override'));
 
 var elections =[];
 
+//var OperationLock = false;
+
 var e1 = {
     'id': 'BDE',
     'votes': [
@@ -57,7 +59,7 @@ app.get('/api/Votes/Elections/:id', function(req, res) {
 	
 	if(election === ""){
 		res.status(404);
-		res.send("404, this election does not exist!");
+		res.send("This election does not exist!");
 	}else{
 		res.contentType('application/json');
 		res.status(200);
@@ -66,14 +68,22 @@ app.get('/api/Votes/Elections/:id', function(req, res) {
 });
 
 app.put('/api/Votes/Elections/:id', function(req, res) {
-	console.log(req.params);
-	var election = {id: req.params.id, votes:[]};
-	elections.push(election);
-	res.status(200);
-	res.send(elections);
+    /*if(OperationLock == true){
+      
+    }*/
+    else{
+      //OperationLock = true;
+      console.log(req.params);
+      var election = {id: req.params.id, votes:[]};
+      elections.push(election);
+      res.status(200);
+      res.send(elections);
+      //OperationLock = false; 
+    }
 });
 
 app.post('/api/Votes/Elections/:id/Votes', function(req, res) {
+    //OperationLock = false;
 	var election = '';
 	console.log("id", req.params.id);
 	console.log(req.body);
@@ -87,15 +97,16 @@ app.post('/api/Votes/Elections/:id/Votes', function(req, res) {
 	}
 	if(election === ""){
 		res.status(404);
-		res.send("404, this election does not exist!");
+		res.send("This election does not exist!");
 	}else{
 		res.status(200)
 		res.json(election);
 	}
+    //OperationLock = true;
 });
 
 app.all('*', function(req, res){
-  res.send('400, this URL does not exist!', 400);
+  res.send('This URL does not exist!', 400);
 });
 
 app.listen(port);
