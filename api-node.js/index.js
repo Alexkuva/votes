@@ -12,7 +12,9 @@ app.use(morgan('dev'));
 app.use(bodyParser.json()); // parse application/json
 app.use(methodOverride('X-HTTP-Method-Override'));
 
+
 var elections =[];
+elections.push(data);
 
 var OperationLock = false;
 
@@ -31,7 +33,7 @@ var e1 = {
         'choix': 2,
         'prenom': 'Fadwa'
       }]
-	  };
+};
 	  
 elections.push(e1);
 
@@ -68,17 +70,23 @@ app.get('/api/Votes/Elections/:id', function(req, res) {
 });
 
 app.put('/api/Votes/Elections/:id', function(req, res) {
-    if(OperationLock == true){
-      
+	console.log(req.params);
+    var VerifExistence = false;
+    for(i in elections){
+      if(elections[i].id === req.params.id){
+        VerifExistence = true;
+      }
+    }
+    if(VerifExistence === true){
+        elections.splice(i,1);
+        res.status(200);
+        res.send(elections);
     }
     else{
-      OperationLock = true;
-      console.log(req.params);
       var election = {id: req.params.id, votes:[]};
       elections.push(election);
       res.status(201);
       res.send(elections);
-      OperationLock = false; 
     }
 });
 
