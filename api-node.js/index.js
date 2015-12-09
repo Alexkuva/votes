@@ -14,7 +14,7 @@ app.use(methodOverride('X-HTTP-Method-Override'));
 
 var elections =[];
 
-//var OperationLock = false;
+var OperationLock = false;
 
 var e1 = {
     'id': 'BDE',
@@ -68,41 +68,44 @@ app.get('/api/Votes/Elections/:id', function(req, res) {
 });
 
 app.put('/api/Votes/Elections/:id', function(req, res) {
-    /*if(OperationLock == true){
+    if(OperationLock == true){
       
-    }*/
+    }
     else{
-      //OperationLock = true;
+      OperationLock = true;
       console.log(req.params);
       var election = {id: req.params.id, votes:[]};
       elections.push(election);
-      res.status(200);
+      res.status(201);
       res.send(elections);
-      //OperationLock = false; 
+      OperationLock = false; 
     }
 });
 
 app.post('/api/Votes/Elections/:id/Votes', function(req, res) {
-    //OperationLock = false;
-	var election = '';
-	console.log("id", req.params.id);
-	console.log(req.body);
-	for(i in elections){
-		console.log(elections[i]);
-		if(elections[i].id === req.params.id){
-			elections[i].votes.push(req.body);
-			election = elections[i];
-			
-		}
-	}
-	if(election === ""){
-		res.status(404);
-		res.send("This election does not exist!");
-	}else{
-		res.status(200)
-		res.json(election);
-	}
-    //OperationLock = true;
+    if(OperationLock == true){
+      
+    }
+      else{
+      var election = '';
+      console.log("id", req.params.id);
+      console.log(req.body);
+      for(i in elections){
+          console.log(elections[i]);
+          if(elections[i].id === req.params.id){
+              elections[i].votes.push(req.body);
+              election = elections[i];
+
+          }
+      }
+      if(election === ""){
+          res.status(404);
+          res.send("This election does not exist!");
+      }else{
+          res.status(201)
+          res.json(election);
+      }
+    }
 });
 
 app.all('*', function(req, res){
