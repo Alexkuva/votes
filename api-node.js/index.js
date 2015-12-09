@@ -12,13 +12,17 @@ app.use(morgan('dev'));
 app.use(bodyParser.json()); // parse application/json
 app.use(methodOverride('X-HTTP-Method-Override'));
 
+//json
+var fs = require('fs');
+var JsonPath = "./data.json";
+var data = require(JsonPath);
 
 var elections =[];
 elections.push(data);
 
 var OperationLock = false;
 
-var e1 = {
+/*var e1 = {
     'id': 'BDE',
     'votes': [
       {
@@ -35,10 +39,9 @@ var e1 = {
       }]
 };
 	  
-elections.push(e1);
+elections.push(e1);*/
 
 app.get('/api/Votes/Elections', function(req, res) {
-	
 	res.contentType('application/json');
 	res.status(200);
 	res.json(elections);
@@ -85,6 +88,14 @@ app.put('/api/Votes/Elections/:id', function(req, res) {
     else{
       var election = {id: req.params.id, votes:[]};
       elections.push(election);
+      fs.writeFile(JsonPath, JSON.stringify(elections), function(err) {
+        if(err) {
+          console.log(err);      
+        }
+        else {
+          console.log("JSON saved to " + JsonPath);
+        }
+      }); 
       res.status(201);
       res.send(elections);
     }
