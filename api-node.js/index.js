@@ -17,7 +17,7 @@ var fs = require('fs');
 var JsonPath = "./data.json";
 var data = require(JsonPath);
 
-var elections =[];
+var elections = [];
 elections.push(data);
 
 var OperationLock = false;
@@ -43,8 +43,7 @@ elections.push(e1);*/
 
 app.get('/api/Votes/Elections', function(req, res) {
 	res.contentType('application/json');
-	res.status(200);
-	res.json(elections);
+	res.status(200).json(elections);
 });
 
 app.param('id', function (req, res, next, id) {
@@ -63,12 +62,10 @@ app.get('/api/Votes/Elections/:id', function(req, res) {
 	}
 	
 	if(election === ""){
-		res.status(404);
-		res.send("This election does not exist!");
+		res.status(404).send("This election does not exist!");
 	}else{
 		res.contentType('application/json');
-		res.status(200);
-		res.json(election);
+		res.status(200).json(election);
 	}
 });
 
@@ -78,12 +75,11 @@ app.put('/api/Votes/Elections/:id', function(req, res) {
     for(i in elections){
       if(elections[i].id === req.params.id){
         VerifExistence = true;
+        elections[i].votes = [];
       }
     }
     if(VerifExistence === true){
-        elections.splice(i,1);
-        res.status(200);
-        res.send(elections);
+        res.status(200).send(elections);
     }
     else{
       var election = {id: req.params.id, votes:[]};
@@ -95,9 +91,8 @@ app.put('/api/Votes/Elections/:id', function(req, res) {
         else {
           console.log("JSON saved to " + JsonPath);
         }
-      }); 
-      res.status(201);
-      res.send(elections);
+      });
+      res.status(201).send(elections);
     }
 });
 
@@ -114,21 +109,22 @@ app.post('/api/Votes/Elections/:id/Votes', function(req, res) {
           if(elections[i].id === req.params.id){
               elections[i].votes.push(req.body);
               election = elections[i];
-
           }
       }
       if(election === ""){
-          res.status(404);
-          res.send("This election does not exist!");
+          res.status(404).send("This election does not exist!");
       }else{
-          res.status(201)
-          res.json(election);
+          res.status(201).json(election);
       }
     }
 });
 
+app.delete('*',function(req,res){
+  res.status(405).send('Method not allowed!');
+});
+
 app.all('*', function(req, res){
-  res.send('This URL does not exist!', 400);
+  res.status(400).send('This URL does not exist!');
 });
 
 app.listen(port);
