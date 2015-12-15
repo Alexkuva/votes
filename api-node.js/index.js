@@ -15,35 +15,41 @@ app.use(methodOverride('X-HTTP-Method-Override'));
 //json
 var fs = require('fs');
 var JsonPath = "./data.json";
-var data = require(JsonPath);
+var jsonObj = require(JsonPath);
 
-var elections = [];
-elections.push(data);
+/*console.log(data);
+console.log(data.id);*/
 
 var OperationLock = false;
 
-/*var e1 = {
-    'id': 'BDE',
-    'votes': [
-      {
-        'choix': 1,
-        'prenom': 'Adel'
-      },
-      {
-        'choix': 2,
-        'prenom': 'Quentin'
-      },
-      {
-        'choix': 2,
-        'prenom': 'Fadwa'
-      }]
-};
-	  
-elections.push(e1);*/
+/*for(var i in jsonObj) {
+  console.log("ID"+i+ " IDjsonObj: "+jsonObj[i].id);
+  for(var k in jsonObj[i].votes)
+    console.log("Itérateur: "+k+" Choix: "+jsonObj[i].votes[k].choix+ " Prenom: "+jsonObj[i].votes[k].prenom);  
+}
+console.log("APRES ECRASEMENT !!!");
+nb=0;
+for(var i in jsonObj){
+    nb++;
+}
+jsonObj[0].votes = [];
+for(var i in jsonObj) {
+  console.log("ID"+i+ " IDjsonObj: "+jsonObj[i].id);
+  for(var k in jsonObj[i].votes)
+    console.log("Itérateur: "+k+" Choix: "+jsonObj[i].votes[k].choix+ " Prenom: "+jsonObj[i].votes[k].prenom);  
+}
+jsonObj[nb] = {id: 'BDI', votes:[]};
+nb++;
+
+for(var i in jsonObj) {
+  console.log("ID"+i+ " IDjsonObj: "+jsonObj[i].id);
+  for(var k in jsonObj[i].votes)
+    console.log("Itérateur: "+k+" Choix: "+jsonObj[i].votes[k].choix+ " Prenom: "+jsonObj[i].votes[k].prenom);  
+}*/
 
 app.get('/api/Votes/Elections', function(req, res) {
 	res.contentType('application/json');
-	res.status(200).json(elections);
+	res.status(200).json(jsonObj);
 });
 
 app.param('id', function (req, res, next, id) {
@@ -53,14 +59,18 @@ app.param('id', function (req, res, next, id) {
 
 app.get('/api/Votes/Elections/:id', function(req, res) {
 	var election = '';
-	console.log("id", req.params.id);
-	for(i in elections){
+	//console.log("id", req.params.id);
+    for(var i in jsonObj) {
+      if(jsonObj[i].id === req.params.id){
+        election = jsonObj[i];
+      }
+    }
+	/*for(var i in elections){
 		console.log(elections[i]);
 		if(elections[i].id === req.params.id){
 			election = elections[i];
 		}
-	}
-	
+	}*/
 	if(election === ""){
 		res.status(404).send("This election does not exist!");
 	}else{
@@ -70,29 +80,43 @@ app.get('/api/Votes/Elections/:id', function(req, res) {
 });
 
 app.put('/api/Votes/Elections/:id', function(req, res) {
-	console.log(req.params);
+	//console.log(req.params);
     var VerifExistence = false;
-    for(i in elections){
+    for(var i in jsonObj) {
+        if(jsonObj[i].id === req.params.id){
+          VerifExistence = true;
+          jsonObj[i].votes = [];
+        }
+      }
+    /*
+    for(var i in elections){
       if(elections[i].id === req.params.id){
         VerifExistence = true;
         elections[i].votes = [];
       }
-    }
+    }*/
     if(VerifExistence === true){
-        res.status(200).send(elections);
+        res.status(200).send(jsonObj);
     }
     else{
+      var cpt=0;
+      for(var i in jsonObj){
+          cpt++;
+      }
+      jsonObj[cpt] = {id: req.params.id, votes:[]};
+      /*
       var election = {id: req.params.id, votes:[]};
       elections.push(election);
-      fs.writeFile(JsonPath, JSON.stringify(elections), function(err) {
+      */
+      fs.writeFile(JsonPath, JSON.stringify(jsonObj), function(err) {
         if(err) {
-          console.log(err);      
+          console.log(err);
         }
         else {
           console.log("JSON saved to " + JsonPath);
         }
       });
-      res.status(201).send(elections);
+      res.status(201).send(jsonObj);
     }
 });
 
@@ -104,13 +128,33 @@ app.post('/api/Votes/Elections/:id/Votes', function(req, res) {
       var election = '';
       console.log("id", req.params.id);
       console.log(req.body);
-      for(i in elections){
+      for(var i in jsonObj){
+          if(jsonObj[i].id === req.params.id){
+            var cpt = 0;
+            for(var j in jsonObj[i].votes){
+              cpt++;
+            }
+            jsonObj[i].votes[cpt] = req.body;
+            election = jsonObj[i];
+            fs.writeFile(JsonPath, JSON.stringify(jsonObj), function(err) {
+              if(err) {
+                console.log(err);
+              }
+              else {
+                console.log("JSON saved to " + JsonPath);
+              }
+            });
+          }
+      }      
+      /*
+      for(var i in elections){
           console.log(elections[i]);
           if(elections[i].id === req.params.id){
               elections[i].votes.push(req.body);
               election = elections[i];
           }
       }
+      */
       if(election === ""){
           res.status(404).send("This election does not exist!");
       }else{
